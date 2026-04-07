@@ -1,5 +1,7 @@
 <div align="center">
-  <img src="assets/wilddet3d_banner.svg" alt="WildDet3D" width="800" style="margin-left:'auto' margin-right:'auto' display:'block'"/>
+  <a href="https://youtu.be/RgHKmOqb7I4">
+    <img src="assets/wilddet3d_banner.svg" alt="WildDet3D" width="800" style="margin-left:'auto' margin-right:'auto' display:'block'"/>
+  </a>
   <br>
 
 # WildDet3D:<br> Scaling Promptable 3D Detection in the Wild
@@ -55,14 +57,6 @@
 </p>
 
 </div>
-
-<p align="center">
-  <a href="https://youtu.be/RgHKmOqb7I4">
-    <img src="https://img.youtube.com/vi/RgHKmOqb7I4/maxresdefault.jpg" width="80%" alt="WildDet3D Demo Video" />
-  </a>
-  <br>
-  <a href="https://youtu.be/RgHKmOqb7I4">Watch the full demo video</a>
-</p>
 
 ## Demo & Applications
 
