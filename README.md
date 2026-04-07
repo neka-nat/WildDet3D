@@ -174,8 +174,13 @@ model = build_model(
 
 # Load and preprocess image
 image = np.array(Image.open("image.jpg")).astype(np.float32)
-intrinsics = np.load("intrinsics.npy")  # (3, 3), or None for predicted intrinsics
+
+# With known camera intrinsics
+intrinsics = np.load("intrinsics.npy")  # (3, 3)
 data = preprocess(image, intrinsics)
+
+# Without intrinsics (uses default: focal=max(H,W), principal point at center)
+# data = preprocess(image)
 
 # Text prompt: detect all instances of given categories
 results = model(
@@ -236,7 +241,7 @@ draw_3d_boxes(
 ```
 
 **Notes:**
-- If `intrinsics` is `None`, a default intrinsic matrix is used (focal length = max(H, W), principal point at image center).
+- If `intrinsics` is not provided, a default intrinsic matrix is used (`focal=max(H,W)`, principal point at image center).
 - Optional depth input: pass `depth_gt=depth_tensor` (shape `(B, 1, H, W)`, meters) for improved 3D localization with sparse/dense depth (e.g., LiDAR).
 
 See **[docs/INFERENCE.md](docs/INFERENCE.md)** for the full API reference.
