@@ -236,7 +236,7 @@ draw_3d_boxes(
 ```
 
 **Notes:**
-- If `intrinsics` is `None`, the model predicts intrinsics internally (for in-the-wild images without known camera parameters).
+- If `intrinsics` is `None`, a default intrinsic matrix is used (focal length = max(H, W), principal point at image center).
 - Optional depth input: pass `depth_gt=depth_tensor` (shape `(B, 1, H, W)`, meters) for improved 3D localization with sparse/dense depth (e.g., LiDAR).
 
 See **[docs/INFERENCE.md](docs/INFERENCE.md)** for the full API reference.
