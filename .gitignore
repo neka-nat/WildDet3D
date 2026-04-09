@@ -2,3 +2,4 @@ ckpt/
 __pycache__/
 *.pyc
 vis4d-workspace/
+.env
