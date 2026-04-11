@@ -121,7 +121,7 @@ def _build_parser() -> argparse.ArgumentParser:
         nargs=4,
         type=float,
         metavar=("FX", "FY", "CX", "CY"),
-        help="Camera intrinsics as fx fy cx cy.",
+        help="Optional camera intrinsics as fx fy cx cy.",
     )
     parser.add_argument(
         "--use-predicted-intrinsics",
@@ -133,7 +133,7 @@ def _build_parser() -> argparse.ArgumentParser:
         "--no-use-predicted-intrinsics",
         dest="use_predicted_intrinsics",
         action="store_false",
-        help="Force the server to use provided intrinsics.",
+        help="Force the server to use provided intrinsics (requires --intrinsics).",
     )
     parser.set_defaults(use_predicted_intrinsics=None)
     parser.add_argument(

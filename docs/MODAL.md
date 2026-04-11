@@ -71,6 +71,17 @@ See [demo/modal_client/README.md](../demo/modal_client/README.md) for CLI and Py
 - `image`: binary image file
 - `request_json`: JSON string with the inference payload
 
+`request_json` supports these top-level fields:
+
+- `prompt`: required prompt object
+- `score_threshold`: optional float in `[0, 1]`
+- `intrinsics`: optional `3x3` camera matrix in original image space
+- `use_predicted_intrinsics`: optional boolean
+
+`intrinsics` is optional. If it is omitted, the server defaults to
+`use_predicted_intrinsics=true` and decodes 3D boxes with predicted intrinsics.
+If you send `use_predicted_intrinsics=false`, you must also send `intrinsics`.
+
 Example:
 
 ```bash
@@ -87,6 +98,24 @@ curl -X POST "$WILDDET3D_URL/infer" \
     },
     "score_threshold": 0.25
   }'
+```
+
+### Request with explicit intrinsics
+
+```json
+{
+  "prompt": {
+    "type": "text",
+    "texts": ["car", "bicycle"]
+  },
+  "intrinsics": [
+    [1200.0, 0.0, 960.0],
+    [0.0, 1200.0, 540.0],
+    [0.0, 0.0, 1.0]
+  ],
+  "use_predicted_intrinsics": false,
+  "score_threshold": 0.25
+}
 ```
 
 ## Prompt Shapes
@@ -153,3 +182,4 @@ curl -X POST "$WILDDET3D_URL/infer" \
 - The first cold start may still populate the Hugging Face cache Volume for LingBot-related assets.
 - The first request after deploy or idle scale-down can take a few minutes. If you want to avoid cold starts, deploy with `WILDDET3D_MODAL_MIN_CONTAINERS=1`. `WILDDET3D_MODAL_SCALEDOWN_WINDOW` defaults to 900 seconds.
 - The current API returns structured detections and intrinsics metadata, not visualization images.
+- The response includes `provided_intrinsics`, `predicted_intrinsics`, `effective_intrinsics`, and `effective_intrinsics_source` so clients can tell which camera matrix was actually used for 3D decoding.

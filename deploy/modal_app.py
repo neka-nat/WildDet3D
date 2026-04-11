@@ -315,6 +315,12 @@ def _normalize_request(
             "use_predicted_intrinsics",
         )
 
+    if intrinsics is None and not use_predicted_intrinsics:
+        raise RequestValidationError(
+            "`intrinsics` can only be omitted when "
+            "`use_predicted_intrinsics` is true or omitted."
+        )
+
     return {
         "image_bytes": image_bytes,
         "prompt": prompt,
@@ -377,6 +383,41 @@ def _scale_intrinsics_to_original(
     predicted_k[0, 2] *= scale_x
     predicted_k[1, 2] *= scale_y
     return predicted_k.tolist()
+
+
+def _to_intrinsics_list(intrinsics: Any) -> list[list[float]] | None:
+    if intrinsics is None:
+        return None
+
+    import torch
+
+    if isinstance(intrinsics, torch.Tensor):
+        intrinsics = intrinsics.detach().cpu().clone()
+    else:
+        intrinsics = torch.tensor(intrinsics, dtype=torch.float32)
+
+    if intrinsics.ndim == 3:
+        intrinsics = intrinsics[0]
+
+    return intrinsics.tolist()
+
+
+def _resolve_effective_intrinsics(
+    *,
+    provided_intrinsics: list[list[float]] | None,
+    predicted_intrinsics: list[list[float]] | None,
+    placeholder_intrinsics: list[list[float]] | None,
+    use_predicted_intrinsics: bool,
+) -> tuple[list[list[float]] | None, str]:
+    if use_predicted_intrinsics and predicted_intrinsics is not None:
+        return predicted_intrinsics, "predicted"
+    if provided_intrinsics is not None:
+        return provided_intrinsics, "provided"
+    if predicted_intrinsics is not None:
+        return predicted_intrinsics, "predicted"
+    if placeholder_intrinsics is not None:
+        return placeholder_intrinsics, "placeholder"
+    return None, "none"
 
 
 def _cross_category_nms(
@@ -712,6 +753,18 @@ class WildDet3DAPI:
             input_hw=data["input_hw"],
             original_hw=data["original_hw"],
         )
+        placeholder_intrinsics = _to_intrinsics_list(
+            data["original_intrinsics"]
+        )
+        (
+            effective_intrinsics,
+            effective_intrinsics_source,
+        ) = _resolve_effective_intrinsics(
+            provided_intrinsics=intrinsics,
+            predicted_intrinsics=predicted_intrinsics,
+            placeholder_intrinsics=placeholder_intrinsics,
+            use_predicted_intrinsics=use_predicted_intrinsics,
+        )
 
         depth_summary = None
         if depth_maps is not None and len(depth_maps) > 0:
@@ -747,6 +800,8 @@ class WildDet3DAPI:
             "use_predicted_intrinsics": use_predicted_intrinsics,
             "provided_intrinsics": intrinsics,
             "predicted_intrinsics": predicted_intrinsics,
+            "effective_intrinsics": effective_intrinsics,
+            "effective_intrinsics_source": effective_intrinsics_source,
             "depth_summary": depth_summary,
             "confidence_summary": confidence_summary,
             "model_device": self._device,

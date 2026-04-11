@@ -151,6 +151,8 @@ class InferResponse:
     use_predicted_intrinsics: bool
     provided_intrinsics: list[list[float]] | None
     predicted_intrinsics: list[list[float]] | None
+    effective_intrinsics: list[list[float]] | None
+    effective_intrinsics_source: str
     depth_summary: DepthSummary | None
     confidence_summary: ConfidenceSummary | None
     model_device: str
@@ -168,6 +170,10 @@ class InferResponse:
             use_predicted_intrinsics=bool(data["use_predicted_intrinsics"]),
             provided_intrinsics=data.get("provided_intrinsics"),
             predicted_intrinsics=data.get("predicted_intrinsics"),
+            effective_intrinsics=data.get("effective_intrinsics"),
+            effective_intrinsics_source=str(
+                data.get("effective_intrinsics_source", "none")
+            ),
             depth_summary=(
                 None
                 if data.get("depth_summary") is None
@@ -186,6 +192,8 @@ class InferResponse:
         *,
         prefer_predicted: bool = True,
     ) -> list[list[float]] | None:
+        if self.effective_intrinsics is not None:
+            return self.effective_intrinsics
         if prefer_predicted and self.predicted_intrinsics is not None:
             return self.predicted_intrinsics
         if self.provided_intrinsics is not None:
@@ -216,6 +224,8 @@ class InferResponse:
             "use_predicted_intrinsics": self.use_predicted_intrinsics,
             "provided_intrinsics": self.provided_intrinsics,
             "predicted_intrinsics": self.predicted_intrinsics,
+            "effective_intrinsics": self.effective_intrinsics,
+            "effective_intrinsics_source": self.effective_intrinsics_source,
             "depth_summary": (
                 None
                 if self.depth_summary is None

@@ -97,6 +97,19 @@ save_rendered_image("image.wilddet3d.jpg", rendered)
 ## Rendering Notes
 
 - 2D boxes are drawn with OpenCV.
-- 3D wireframes are projected locally using the intrinsics returned by the API.
+- 3D wireframes are projected locally using the effective intrinsics returned by the API.
 - Labels are drawn with Pillow on top of the OpenCV output.
 - If no renderable intrinsics are available, the renderer falls back to 2D-only overlays.
+
+You can optionally provide camera intrinsics from the CLI:
+
+```bash
+python -m demo.modal_client.cli \
+  --image image.jpg \
+  --prompt-type text \
+  --texts car \
+  --intrinsics 1200 1200 960 540 \
+  --no-use-predicted-intrinsics
+```
+
+If `--intrinsics` is omitted, the server falls back to predicted intrinsics.
